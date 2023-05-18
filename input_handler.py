@@ -1,4 +1,5 @@
 import os
+import json
 import uinput
 
 fifo_path = "/tmp/my_pipe"
@@ -9,26 +10,20 @@ if not os.path.exists(fifo_path):
 
 # Set up the uinput device
 device = uinput.Device([
-    uinput.REL_X,
-    uinput.REL_Y,
+    uinput.ABS_X + (0, 1920, 0, 0),
+    uinput.ABS_Y + (0, 1080, 0, 0),
     uinput.BTN_LEFT,
 ])
 
 with open(fifo_path, "r") as fifo:
     while True:
-        data = fifo.readline().strip()
-        if data:
-            print(f"Received: {data}")
-            event, *args = data.split(" ")
+        event = fifo.readline().strip()
 
-            if event == "MOVE":
-                x, y = map(int, args)
-                device.emit(uinput.REL_X, x, syn=False)
-                device.emit(uinput.REL_Y, y)
-            elif event == "CLICK":
-                button = int(args[0])
-                if button == 1:
-                    device.emit_click(uinput.BTN_LEFT)
+        if event:
+            coordinate = json.loads(event)
+
+            device.emit(uinput.ABS_X, coordinate['x'], syn=False)
+            device.emit(uinput.ABS_Y, coordinate['y'])
 
 # Clean up the named pipe when the daemon exits
 os.remove(fifo_path)

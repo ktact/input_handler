@@ -9,8 +9,8 @@ int main() {
 
     // Sample mouse events
     const char *mouse_events[] = {
-        "MOVE 10 10\n",
-        "MOVE -10 -10\n",
+        "{ \"x\": 100, \"y\": 100 }\n",
+        "{ \"x\": 500, \"y\": 500 }\n"
     };
     int num_events = sizeof(mouse_events) / sizeof(mouse_events[0]);
 
@@ -23,7 +23,7 @@ int main() {
 
     // Write the mouse events to the named pipe
     for (int i = 0; i < num_events; i++) {
-        write(fd, mouse_events[i], strlen(mouse_events[i]) + 1);
+        write(fd, mouse_events[i], strlen(mouse_events[i]));
         sleep(1); // Add a delay between events
     }
 
